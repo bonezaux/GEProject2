@@ -55,13 +55,34 @@ def checkLoads():
     """
     pass
 
-def save(beam, loads):
+def saveFile(beam, loads):
+    """
+    Saves the beam and loads to a file with filename given by the user.
+    Uses panda for saving to csv.
+    """
+    filename = input("Write file name to save file as, without extension:")
+    if not filename.isalnum():
+        print ("Illegal filename! Please only enter alphanumerical characters.") 
+        return
+    
     result = np.array([beam[0], beam[1]])
     for load in loads:
         result = np.vstack((result, np.array([load[0], load[1]])))
     print(str(pd.DataFrame(result)))
     print(pd.DataFrame(result).to_csv(index=False))
+    
+    with open(filename+".csv", "w") as file:
+        pd.DataFrame(result).to_csv(file, index=False)
 
+def loadFile():
+    filename = input("Write file name to load from, without extension:")
+    
+    data = None
+    with open(filename+".csv") as file:
+        data = pd.read_csv(file)
+    
+    print(data)
+    
 def mainScript():
     #Beam tuple, [0] = length, [1] = supportType (string)
     beam = None
@@ -79,7 +100,7 @@ def mainScript():
         if beam != None:
             print("Current beam: " + str(beam[0]) + "m, " + beam[1] + " supported.");
             
-        entry = input("Choose a menu entry")
+        entry = input("Choose a menu entry: ")
         
         #Configure beam
         if entry == "1":
@@ -122,11 +143,11 @@ def mainScript():
         
         #Save beam and loads
         elif entry == "3":
-            save(beam, loads)
+            saveFile(beam, loads)
         
         #Load beam and loads
         elif entry == "4":
-            pass
+            loadFile()
         
         #Plot
         elif entry == "5":
@@ -141,3 +162,5 @@ def mainScript():
         elif entry == "6":
             print("Quitting")
             break
+
+mainScript()
