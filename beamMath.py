@@ -11,12 +11,12 @@ def beamDeflection(positions, beamLength, loadPosition, loadForce, beamSupport):
     """
     """
     if(beamSupport == "both"):
-        #Calculate x<a & x>=a
+        #Calculate x<a & x>=a, and concatenate
         a1 = ((loadForce*(beamLength-loadPosition)*positions)/(6*200E9*0.001*beamLength)*(beamLength**2-positions**2-(beamLength-loadPosition)**2))[positions<loadPosition]
         a2 = ((loadForce*(beamLength-positions)*loadPosition)/(6*200E9*0.001*beamLength)*(beamLength**2-loadPosition**2-(beamLength-positions)**2))[positions>=loadPosition]
         return np.concatenate((a1,a2));
     elif(beamSupport == "cantilever"):
-        #Calculate x<a & x>=a
+        #Calculate x<a & x>=a, and concatenate
         a1 = ((loadForce*positions**2)/(6*200E9*0.001)*(3*loadPosition-positions))[positions<loadPosition]
         a2 = ((loadForce*loadPosition**2)/(6*200E9*0.001)*(3*positions-loadPosition))[positions>=loadPosition]
         return np.concatenate((a1,a2))        
