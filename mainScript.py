@@ -4,10 +4,8 @@ Created on Thu Nov 15 14:33:04 2018
 
 @author: carl
 """
-import numpy as np
-import pandas as pd
-import os.path
 from beamPlot import beamPlot
+from beamIO import saveFile, loadFile
 
 def isFloat(string):
     """
@@ -18,19 +16,6 @@ def isFloat(string):
     except ValueError:
         return False;
     return True;
-
-def printLoads(loads):
-    """
-    Prints given loads, and returns whether any actually exist.
-    """
-    if(len(loads) == 0):
-        print("No current loads")
-        return False
-    else:
-        print(" Loads")
-        for i, load in enumerate(loads):
-            print(str(i+1) + ". " + str(load[1]) + "N at " + str(load[0]) + "m")
-        return True
 
 
 def getBeam():
@@ -44,6 +29,7 @@ def getBeam():
     if not isFloat(length):
         print("You must input a scalar!")
         return None
+    
     print("Support types:")
     print("1. both")
     print("2. cantilever")
@@ -51,8 +37,23 @@ def getBeam():
     if support != "1" and support != "2":
         print("You must choose either 1 or 2!")
         return None
+    
     return (float(length), supportTypes[support])
 
+
+def printLoads(loads):
+    """
+    Prints given loads, and returns whether any actually exist.
+    """
+    if(len(loads) == 0):
+        print("No current loads")
+        return False
+    else:
+        print(" Loads")
+        for i, load in enumerate(loads):
+            print(str(i+1) + ". " + str(load[1]) + "N at " + str(load[0]) + "m")
+        return True
+    
 def validLoads(beam, loads):
     """
     Returns all the loads that are valid for the given beam.
@@ -71,64 +72,6 @@ def checkLoads(beam, loads):
     
     return True
 
-def saveFile(beam, loads):
-    """
-    Saves the beam and loads to a file with filename given by the user.
-    Uses pandas for saving to csv.
-    """
-    if beam==None:
-        print("Cannot save data without beam!")
-        return
-    
-    #Get a valid filename
-    while(True):
-        filename = input("Write file name to save as:")
-        if not filename.isalnum():
-            print ("Illegal filename! Please only enter alphanumerical characters.") 
-            return
-        else:
-            break
-    
-    result = np.array([beam[0], beam[1]])
-    for load in loads:
-        result = np.vstack((result, np.array([load[0], load[1]])))
-        
-    with open(filename+".csv", "w") as file:
-        pd.DataFrame(result).to_csv(file, index=False)
-        print("Wrote data to file " + filename + ".csv")
-        
-def loadFile():
-    """
-    Loads beam and loads from a csv file, as saved by the program previously.
-    Uses pandas for loading from csv.
-    """
-    #Get a valid filename
-    while(True):
-        filename = input("Write file name to load from:")
-        if not filename.isalnum():
-            print ("Illegal filename! Please only enter alphanumerical characters.") 
-            return None
-        else:
-            break
-    
-    #Check whether it is a file
-    if not os.path.isfile(filename+".csv"):
-        print ("File does not exist. Notice that the program loads .csv files if you supplied your own data file.")
-        return None
-    
-    #Load data from file
-    data = None
-    with open(filename+".csv") as file:
-        data = pd.read_csv(file)
-        data = data.values.reshape(-1, 2)
-        beam = (float(data[0,0]), data[0,1])
-        loads = []
-        for r in data[1:,:]:
-            loads.append(r.astype(float))
-        print("Loaded " + filename + ".csv!");
-        return (beam, loads)
-    
-    return None
     
 def mainScript():
     #Beam tuple, [0] = length, [1] = supportType (string)
@@ -146,6 +89,10 @@ def mainScript():
 6. Quit""")
         if beam != None:
             print("Current beam: " + str(beam[0]) + "m, " + beam[1] + " supported.");
+            if len(loads) == 0:
+                print("No loads!")
+        else:
+            print("No beam!")
             
         entry = input("Choose a menu entry: ")
         
@@ -167,8 +114,11 @@ def mainScript():
         
         #Configure loads
         elif entry == "2":
+            if(beam == None):
+                print("You cannot add loads to no beam!")    
+                continue;
             
-            print("Beam menu")
+            print("Loads menu")
             print("1. See current loads")
             print("2. Add a load")
             print("3. Remove a load")
@@ -197,8 +147,6 @@ def mainScript():
                 
                 loads.append((float(position), float(force)))
                 print("Added " + force + "N load at position " + position + "m")
-                if beam == None:
-                    print("Note that no beam exists; load will be removed if outside beam.")
                 
             elif entry == "3":
                 if(printLoads(loads)):

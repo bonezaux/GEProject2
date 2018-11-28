@@ -26,10 +26,12 @@ def beamPlot(beamLength,loadPositions,loadForces,beamSupport):
     ax1.set_ylabel("Deflection at point [m]")
     ax1.invert_yaxis()
     
-    maxdef = max(res)
-    print(maxdef)
-    exponent = np.floor(np.log10(maxdef))
-    plt.text(0,maxdef,"Max deflection: " + str(round(max(res)*10**(-exponent), 2)) + "E" + str(int(exponent)) +" m");
+    #Print the maximum deflection in scientific notation, at a non-obtrusive location
+    maxDeflection = max(res)
+    textX = 0 if beamSupport == "cantilever" else beamLength/4
+    textY = maxDeflection if beamSupport=="cantilever" else maxDeflection/4
+    exponent = np.floor(np.log10(maxDeflection))
+    plt.text(textX,textY,"Max deflection: " + str(round(maxDeflection*10**(-exponent), 2)) + "* 10^" + str(int(exponent)) +" m");
     
     
     #Make load point plot
